@@ -2,6 +2,8 @@ import React from 'react';
 import {reduxForm} from 'redux-form'
 import {getSelectedEntityKey, getSelectedEntity} from '../utils/entities'
 
+const primitives = ['box', 'circle', 'cone', 'cylinder', 'plane', 'ring', 'sphere', 'torus', 'torusKnot']
+
 class GeometryForm extends React.Component {
   render() {
     return (
@@ -12,7 +14,9 @@ class GeometryForm extends React.Component {
         </div>
         <div style={{width:'100%'}}>
           <label>primitive</label>
-          <input type="text" {...this.props.fields.geometry.primitive}/>
+          <select {...this.props.fields.geometry.primitive}>
+            {primitives.map(primitive => <option key={primitive} value={primitive}>{primitive}</option>)}
+          </select>
         </div>
         <div style={{width:'100%'}}>
           <label>skipCache</label>
@@ -54,12 +58,16 @@ export default reduxForm({
 },
 (state)=>{
   const selectedEntity = getSelectedEntity(state)
+  let translate;
+  if (selectedEntity.props.geometry && selectedEntity.props.geometry.translate)
+    translate = selectedEntity.props.geometry.translate.match(/[0-9]+/gi)
+
   return {
     initialValues: {
       key: getSelectedEntityKey(state),
       geometry: {
         ...selectedEntity.props.geometry,
-        translate: (selectedEntity.props.geometry.translate || '0 0 0').match(/[0-9]+/gi),
+        translate,
       }
     }
   }

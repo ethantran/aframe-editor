@@ -2,105 +2,57 @@ import {combineReducers} from 'redux'
 import {reducer as form} from 'redux-form'
 import _ from 'lodash'
 import makeid from './utils/makeid'
+import aframe from 'aframe'
+console.log(aframe.components)
+const components = ['position', 'rotation', 'scale', 'material', 'geometry', 'light']
 
-const defaultMeshAttributes = {
+function getDefaults(schema) {
+  return _(schema)
+  .pickBy(e=>e.default !== undefined)
+  .mapValues(e=>e.default)
+  .value()
+}
+
+const defaultComponentAttributes = {
+  canvas: getDefaults(aframe.components.canvas.schema),
+  cursor: getDefaults(aframe.components.cursor.schema),
+  fog: getDefaults(aframe.components.fog.schema),
   geometry: {
+    ...getDefaults(aframe.components.geometry.schema),
     translate: '0 0 0'
   },
+  keyboardShortcuts: getDefaults(aframe.components['keyboard-shortcuts'].schema),
+  light: getDefaults(aframe.components.light.schema),
+  lookControls: getDefaults(aframe.components['look-controls'].schema),
+  material: getDefaults(aframe.components['material'].schema),
+  position: [0, 0, 0],
+  rotation: [0, 0, 0],
+  scale: [1, 1, 1],
+  sound: getDefaults(aframe.components['sound'].schema),
+  visible: true,
+  vrModeUi: getDefaults(aframe.components['vr-mode-ui'].schema),
+  wasdControls: getDefaults(aframe.components['wasd-controls'].schema)
+}
+
+const defaultEntityAttributes = {
+  position: defaultComponentAttributes.position,
+  rotation: defaultComponentAttributes.rotation,
+  scale: defaultComponentAttributes.scale,
+  visible: defaultComponentAttributes.visible,
+}
+
+const defaultMeshAttributes = {
+  ...defaultEntityAttributes,
+  geometry: defaultComponentAttributes.geometry,
   material: {
+    ...defaultComponentAttributes.material,
     color: 'gray',
     metalness: 0,
     opacity: 1,
     roughness: 0.5,
     shader: 'standard',
-    // src: undefined,
     transparent: true
   }
-}
-
-const defaultCanvas = {
-  canvas: null,
-  height: 100,
-  width: 100
-}
-
-const defaultCursor = {
-  fuse: false,
-  maxDistance: 1000,
-  timeout: 1500
-}
-
-const defaultFog = {
-  type: 'linear',
-  color: '#000',
-  near: 1,
-  far: 1000,
-  density: 0.00025
-}
-
-const defaultGeometry =  {
-  buffer: true,
-  // primitive: undefined,
-  skipCache: false
-}
-
-const defaultKeyboardShortcuts = {
-  enterVR: true,
-  resetSensor: true
-}
-
-const defaultLight = {
-  angle: 60,
-  color: '#fff',
-  decay: 1,
-  distance: 0,
-  exponent: 10,
-  groundColor: '#fff',
-  intensity: 1,
-  type: 'directional'
-}
-
-const defaultLookControls = {
-  enabled: true
-}
-
-const defaultMaterial = {
-  depthTest: true,
-  opacity: 1,
-  transparent: false,
-  shader: 'standard',
-  side: 'front'
-}
-
-const defaultPosition = [0, 0, 0]
-
-const defaultRotation = [0, 0, 0]
-
-const defaultScale = [1, 1, 1]
-
-const defaultSound = {
-  autoplay: false,
-  on: 'click',
-  loop: 'false',
-  src: null,
-  volume: 1
-}
-
-const defaultVisible = true
-
-const defaultVrModeUi = {
-  enabled: true
-}
-
-const defaultWasdControls = {
-  acceleration: 65,
-  adAxis: 'x',
-  adInverted: false,
-  easing: 20,
-  enabled: true,
-  fly: false,
-  wsAxis: 'z',
-  wsInverted: false
 }
 
 export const defaultPrimitiveGeometry = {
@@ -193,22 +145,17 @@ export const defaultPrimitiveGeometry = {
   }
 }
 
-const createMeshPrimitiveEntityCreator = (primitive) => () => {
+const createMeshPrimitiveEntityCreator = (primitive, primitiveOverride) => () => {
   return {
     key: makeid(),
     props: {
-      position: defaultPosition,
-      rotation: defaultRotation,
-      scale: defaultScale,
-      visible: defaultVisible,
+      ...defaultMeshAttributes,
       geometry: {
-        primitive,
-        ...defaultGeometry,
         ...defaultMeshAttributes.geometry,
-        ...defaultPrimitiveGeometry[primitive]
+        ...defaultPrimitiveGeometry[primitive],
+        primitive: primitiveOverride || primitive,
       },
       material: {
-        ...defaultMaterial,
         ...defaultMeshAttributes.material
       }
     }
@@ -219,106 +166,23 @@ const createEntity = {
   box: createMeshPrimitiveEntityCreator('box'),
   circle: createMeshPrimitiveEntityCreator('circle'),
   cone: createMeshPrimitiveEntityCreator('cone'),
-  curvedimage: () => {
-    return {
-      key: makeid(),
-      props: {
-        position: defaultPosition,
-        rotation: defaultRotation,
-        scale: defaultScale,
-        visible: defaultVisible,
-        geometry: {
-          primitive: 'cylinder',
-          ...defaultGeometry,
-          ...defaultMeshAttributes.geometry,
-          ...defaultPrimitiveGeometry['curvedimage']
-        },
-        material: {
-          ...defaultMaterial,
-          ...defaultMeshAttributes.material
-        }
-      }
-    }
-  },
+  curvedimage: createMeshPrimitiveEntityCreator('curvedimage', 'cylinder'),
   cylinder: createMeshPrimitiveEntityCreator('cylinder'),
   image: createMeshPrimitiveEntityCreator('image'),
   plane: createMeshPrimitiveEntityCreator('plane'),
   ring: createMeshPrimitiveEntityCreator('ring'),
-  sky: () => {
-    return {
-      key: makeid(),
-      props: {
-        position: defaultPosition,
-        rotation: defaultRotation,
-        scale: defaultScale,
-        visible: defaultVisible,
-        geometry: {
-          primitive: 'sphere',
-          ...defaultGeometry,
-          ...defaultMeshAttributes.geometry,
-          ...defaultPrimitiveGeometry['sky']
-        },
-        material: {
-          ...defaultMaterial,
-          ...defaultMeshAttributes.material
-        }
-      }
-    }
-  },
+  sky: createMeshPrimitiveEntityCreator('sky', 'sphere'),
   sphere: createMeshPrimitiveEntityCreator('sphere'),
   torus: createMeshPrimitiveEntityCreator('torus'),
   torusKnot: createMeshPrimitiveEntityCreator('torusKnot'),
-  video: () => {
-    return {
-      key: makeid(),
-      props: {
-        position: defaultPosition,
-        rotation: defaultRotation,
-        scale: defaultScale,
-        visible: defaultVisible,
-        geometry: {
-          primitive: 'plane',
-          ...defaultGeometry,
-          ...defaultMeshAttributes.geometry,
-          ...defaultPrimitiveGeometry['video']
-        },
-        material: {
-          ...defaultMaterial,
-          ...defaultMeshAttributes.material
-        }
-      }
-    }
-  },
-  videosphere: () => {
-    return {
-      key: makeid(),
-      props: {
-        position: defaultPosition,
-        rotation: defaultRotation,
-        scale: defaultScale,
-        visible: defaultVisible,
-        geometry: {
-          primitive: 'sphere',
-          ...defaultGeometry,
-          ...defaultMeshAttributes.geometry,
-          ...defaultPrimitiveGeometry['videosphere']
-        },
-        material: {
-          ...defaultMaterial,
-          ...defaultMeshAttributes.material
-        }
-      }
-    }
-  },
+  video: createMeshPrimitiveEntityCreator('video', 'plane'),
+  videosphere: createMeshPrimitiveEntityCreator('videosphere', 'sphere'),
   light: () => {
     return {
       key: makeid(),
       props: {
-        position: defaultPosition,
-        rotation: defaultRotation,
-        scale: defaultScale,
-        visible: defaultVisible,
-        light: defaultLight
+        ...defaultEntityAttributes,
+        light: defaultComponentAttributes.light
       }
     }
   }
@@ -329,6 +193,8 @@ function entities(state = {
   byKey: {},
   selected: null
 }, action) {
+  let updated;
+  let list;
   switch (action.type) {
     case 'entity/create':
       let entity;
@@ -338,7 +204,7 @@ function entities(state = {
       } else {
         entity = {
           key: makeid(),
-          props: defaultComponents
+          props: defaultEntityAttributes
         }
         entity.name = `entity.${state.list.length}`
       }
@@ -366,31 +232,44 @@ function entities(state = {
         selected: state.selected === action.key ? null : state.selected
       }
     case 'entity/update':
-      let updated;
-      const list = state.list.map(e => {
+      list = state.list.map(e => {
         if (e.key !== action.key) {
           return e
         }
-        updated = {
-          ...e
-        }
-        if (action.geometry)
-          updated.props.geometry = {
-            ...e.props.geometry,
-            ...action.geometry
+        updated = {...e}
+        for (let component of components) {
+          if (!_.isUndefined(action[component])) {
+            if (_.isArray(action[component])) {
+              updated.props[component] = action[component]
+            } else if (_.isObject(action[component])) {
+              updated.props[component] = {...e.props[component], ...action[component]}
+            } else {
+              updated.props[component] = action[component]
+            }
           }
-        if (action.material)
-          updated.props.material = action.material
-        if (action.position)
-          updated.props.position = action.position
-        if (action.rotation)
-          updated.props.rotation = action.rotation
-        if (action.scale)
-          updated.props.scale = action.scale
-        if (action.light)
-          updated.props.light = action.light
+        }
         if (typeof action.visible === 'boolean')
           updated.props.visible = action.visible
+        return updated
+      })
+      return {
+        ...state,
+        byKey: {
+          ...state.byKey,
+          [action.key]: updated
+        },
+        list
+      }
+    case 'entity/component/toggle':
+      list = state.list.map(e => {
+        if (e.key !== action.key) {
+          return e
+        }
+        updated = {...e}
+        if (updated.props[action.component])
+          updated.props[action.component] = false
+        else
+          updated.props[action.component] = defaultComponentAttributes[action.component]
         return updated
       })
       return {

@@ -28,9 +28,39 @@ const renderPrimitiveForm = {
   torusKnot: () => <TorusKnotForm/>
 }
 
+const renderComponentForm = {
+  material: () => <MaterialForm/>,
+  geometry: () => <GeometryForm/>,
+  light: () => <LightForm/>
+}
+
+const components = ['material', 'geometry', 'light']
+
 class EntityView extends React.Component {
+  renderComponentSection(component) {
+    return (
+      <div key={component} style={{marginBottom: 10}}>
+        <span style={{fontWeight:'bold'}}>{component}</span>
+        <button onClick={()=>this.props.dispatch({
+          type:'entity/component/toggle',
+          key:this.props.selectedEntity.key,
+          component
+        })}>
+          {this.props.selectedEntity.props[component] ? 'remove' : 'add'}
+        </button>
+        {this.props.selectedEntity.props[component] ? renderComponentForm[component]() : null}
+      </div>
+    )
+  }
   render() {
-    return this.props.selectedEntity ? (
+    if (!this.props.selectedEntity)
+      return null
+    let primitiveForm;
+    if (this.props.selectedEntity.props.geometry
+      && this.props.selectedEntity.props.geometry.primitive
+      && renderPrimitiveForm[this.props.selectedEntity.props.geometry.primitive])
+      primitiveForm = renderPrimitiveForm[this.props.selectedEntity.props.geometry.primitive]()
+    return (
       <div style={{
         position: 'absolute',
         top: '50vh',
@@ -41,31 +71,30 @@ class EntityView extends React.Component {
         border: '1px solid black',
         overflowY: 'scroll',
       }}>
-        <p style={{fontWeight:'bold'}}>{this.props.selectedEntity.name}</p>
-        <p style={{fontWeight:'bold'}}>position</p>
-        <PositionForm/>
-        <p style={{fontWeight:'bold'}}>rotation</p>
-        <RotationForm/>
-        <p style={{fontWeight:'bold'}}>scale</p>
-        <ScaleForm/>
-        <p style={{fontWeight:'bold'}}>material</p>
-        <MaterialForm/>
-        <p style={{fontWeight:'bold'}}>geometry</p>
-        <GeometryForm/>
-        {renderPrimitiveForm[this.props.selectedEntity.props.geometry.primitive] ? (
+        <div style={{marginBottom: 10}}>
+          <span style={{fontWeight:'bold'}}>{this.props.selectedEntity.name}</span>
+        </div>
+        <div style={{marginBottom: 10}}>
+          <span style={{fontWeight:'bold'}}>position</span>
+          <PositionForm/>
+        </div>
+        <div style={{marginBottom: 10}}>
+          <span style={{fontWeight:'bold'}}>rotation</span>
+          <RotationForm/>
+        </div>
+        <div style={{marginBottom: 10}}>
+          <span style={{fontWeight:'bold'}}>scale</span>
+          <ScaleForm/>
+        </div>
+        {components.map(::this.renderComponentSection)}
+        {primitiveForm ? (
           <div>
-            <p style={{fontWeight:'bold'}}>primitive attributes</p>
-            {renderPrimitiveForm[this.props.selectedEntity.props.geometry.primitive]()}
-          </div>
-        ) : null}
-        {this.props.selectedEntity.props.light ? (
-          <div>
-            <p style={{fontWeight:'bold'}}>light attributes</p>
-            <LightForm/>
+            <span style={{fontWeight:'bold'}}>primitive attributes</span>
+            {primitiveForm}
           </div>
         ) : null}
       </div>
-    ) : <div/>
+    )
   }
 }
 

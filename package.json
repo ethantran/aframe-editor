@@ -1,7 +1,7 @@
 {
-  "name": "aframe-react-boilerplate",
-  "version": "1.0.0",
-  "description": "Boilerplate for using A-Frame (VR) with React.",
+  "name": "aframe-editor",
+  "version": "0.0.1",
+  "description": "demo example using aframe react and redux",
   "dependencies": {
     "aframe": "^0.2.0",
     "aframe-react": "^1.2.0",
@@ -23,25 +23,29 @@
     "serve": "cd src && python -m SimpleHTTPServer 5555",
     "serve-js": "webpack-dev-server --content-base src --progress --watch --history-api-fallback --inline --hot"
   },
+  "homepage": "https://github.com/ethantran/aframe-editor",
+  "bugs": "https://github.com/ethantran/aframe-editor/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ngokevin/aframe-react-boilerplate.git"
+    "url": "git+https://github.com/ethantran/aframe-editor.git"
   },
   "keywords": [
     "aframe",
     "react",
     "vr",
-    "boilerplate",
+    "editor",
     "a-frame",
     "mozvr",
-    "webvr"
+    "webvr",
+    "demo",
+    "example",
+    "redux"
   ],
-  "author": "Kevin Ngo <kngo@mozilla.com>",
+  "author": "Ethan Tran <ethan@joinronin.com>",
+  "contributors": [
+    "All Contributors (https://github.com/ethantran/aframe-editor/graphs/contributors)"
+  ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ngokevin/aframe-react-boilerplate/issues"
-  },
-  "homepage": "https://github.com/ngokevin/aframe-react-boilerplate#readme",
   "devDependencies": {
     "babel": "^6.3.13",
     "babel-core": "^6.3.15",
