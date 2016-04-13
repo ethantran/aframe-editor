@@ -9,10 +9,10 @@ import createLogger from 'redux-logger'
 import createSagaMiddleware from 'redux-saga'
 import saga from './sagas'
 import reducer from './reducer'
-import SceneView from './containers/scene-view'
-import PrimitivesView from './containers/primitives-view'
-import EntitiesView from './containers/entities-view'
-import EntityView from './containers/entity-view'
+import SceneView from './containers/SceneView'
+import PrimitivesView from './containers/PrimitivesView'
+import EntitiesView from './containers/EntitiesView'
+import EntityView from './containers/EntityView'
 const initialState = {}
 let middleware = [
   // thunkMiddleware,
@@ -20,8 +20,7 @@ let middleware = [
   createSagaMiddleware(saga),
   createLogger({collapsed: true})
 ]
-const finalCreateStore = applyMiddleware(...middleware)(createStore)
-const store = finalCreateStore(reducer, initialState)
+const store = createStore(reducer, applyMiddleware(...middleware))
 
 class BoilerplateScene extends React.Component {
   render () {
