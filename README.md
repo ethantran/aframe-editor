@@ -2,7 +2,8 @@
 
 demo example using aframe react and redux
 
-[preview gif](http://g.recordit.co/mF39uyHAMk.gif)
+[preview gif](http://g.recordit.co/mF39uyHAMk.gif),
+[ghpage](https://ethantran.github.io/aframe-editor)
 
 ```bash
 npm install
