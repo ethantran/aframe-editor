@@ -2,6 +2,8 @@
 
 demo example using aframe react and redux
 
+[preview gif](http://g.recordit.co/mF39uyHAMk.gif)
+
 ```bash
 npm install
 npm run serve-js &
@@ -12,6 +14,6 @@ localhost:5555
 
 ## links
 
-[A-Frame](https://aframe.io)
-[aframe-react](https://github.com/ngokevin/aframe-react)
+[A-Frame](https://aframe.io),
+[aframe-react](https://github.com/ngokevin/aframe-react),
 [aframe-react-boilerplate](https://github.com/ngokevin/aframe-react-boilerplate)
